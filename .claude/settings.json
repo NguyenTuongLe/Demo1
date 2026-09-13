@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -n -B8 \"^  type\\(text: string, options?: {\" node_modules/playwright-core/types/types.d.ts)",
+      "Bash(curl -sS -o /dev/null -w \"HTTP %{http_code}, time %{time_total}s\\\\n\" --max-time 15 https://opensource-demo.orangehrmlive.com/web/index.php/auth/login)"
+    ]
+  }
+}
