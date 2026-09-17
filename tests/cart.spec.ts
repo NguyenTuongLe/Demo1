@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { productDetailLocators, shopPageLocators, cartLocators } from './locators';
 import {
-  login,
   goToShop,
   parsePrice,
   extractProductId,
@@ -11,17 +10,20 @@ import {
   openCart,
   removeFromCartIfPresent,
   API_BASE,
+  AUTH_FILE,
 } from './helpers';
 
 test.setTimeout(120000);
 
-// Các test dùng chung một tài khoản thật để đăng nhập nên chạy tuần tự, tránh đăng nhập
-// đồng thời từ nhiều trình duyệt cùng lúc gây lỗi phiên đăng nhập
+// Dùng lại phiên đăng nhập đã tạo sẵn ở global-setup.ts thay vì tự đăng nhập lại từng test
+test.use({ storageState: AUTH_FILE });
+
+// Các test dùng chung một tài khoản thật nên chạy tuần tự, tránh nhiều test cùng sửa giỏ hàng
+// một lúc gây xung đột dữ liệu
 test.describe.configure({ mode: 'serial' });
 
 // A01 (UI · smoke): Đúng tên, giá và trạng thái sản phẩm mẫu.
 test('A01: sản phẩm mẫu hiển thị đúng tên, giá và trạng thái kho', async ({ page }) => {
-  await login(page);
   await goToShop(page);
 
   // Lấy sản phẩm mẫu đầu tiên trong danh sách bán chạy của shop để đối chiếu
@@ -48,7 +50,6 @@ test('A01: sản phẩm mẫu hiển thị đúng tên, giá và trạng thái k
 
 // A02 (UI · smoke): Chọn đúng màu/size; giỏ lưu đúng mã biến thể và số lượng.
 test('A02: chọn màu/size cụ thể, giỏ hàng lưu đúng biến thể và số lượng', async ({ page, request }) => {
-  await login(page);
   await goToShop(page);
 
   // Tìm một sản phẩm có phân loại (màu/size) trong danh sách bán chạy của shop, dò qua API cho nhanh
@@ -89,7 +90,6 @@ test('A02: chọn màu/size cụ thể, giỏ hàng lưu đúng biến thể và
 
 // A03 (UI · smoke): Đổi số lượng cập nhật đúng thành tiền; giỏ riêng.
 test('A03: đổi số lượng trên trang sản phẩm cập nhật đúng thành tiền trong giỏ', async ({ page }) => {
-  await login(page);
   await goToShop(page);
 
   const cards = shopPageLocators.bestSellerProductCards(page);
@@ -178,7 +178,6 @@ test('A04: API chi tiết sản phẩm trả đúng ID, biến thể, giá theo 
 
 // A05 (UI · smoke): Tăng/giảm số lượng sản phẩm ngay tại giỏ hàng cập nhật đúng số lượng và thành tiền.
 test('A05: tăng/giảm số lượng sản phẩm ở giỏ hàng cập nhật đúng số lượng và thành tiền', async ({ page }) => {
-  await login(page);
   await goToShop(page);
 
   const cards = shopPageLocators.bestSellerProductCards(page);

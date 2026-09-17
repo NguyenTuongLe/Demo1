@@ -1,5 +1,12 @@
 const {test,expect} = require('@playwright/test')
 
+test("Select Values from dropdown", async function({page}) {
+    await page.goto("freelance-learn-automation.vercel.app/signup")
+
+    await page.locator("#state").selectOption({label:"Goa"})
+})
+
+
 // test("Valid Login", function({page}){
 //   await page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login")
 //   await page.getByPlaceholder("Username").type("Admin")
@@ -8,22 +15,22 @@ const {test,expect} = require('@playwright/test')
 //   await expect(page).toHaveTitle(/dashboard/)
 // })
 
-test("Valid Login", async ({page}) => {
-  await page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login")
-  await page.getByPlaceholder("Username").fill("Admin")
-  await page.getByPlaceholder("Password").fill("admin123")
-  await page.locator("role=button[name='Login']").click()
-  await page.waitForTimeout(5000)
-  await expect(page).toHaveURL(/dashboard/);
+// test("Valid Login", async ({page}) => {
+//   await page.goto("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login")
+//   await page.getByPlaceholder("Username").fill("Admin")
+//   await page.getByPlaceholder("Password").fill("admin123")
+//   await page.locator("role=button[name='Login']").click()
+//   await page.waitForTimeout(5000)
+//   await expect(page).toHaveURL(/dashboard/);
 
-  await page.getAllText("profile picture").first().click()
+//   await page.getAllText("profile picture").first().click()
 
-  await page.getByText("Logout").click()
+//   await page.getByText("Logout").click()
 
-  await page.waitForTimeout(3000)
+//   await page.waitForTimeout(3000)
 
-  await expect(page).toHaveURL(/login/)
-})
+//   await expect(page).toHaveURL(/login/)
+// })
 
 // test("Verify Application Title", async function({page}) {
 //   await page.goto("http://google.com")

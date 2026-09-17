@@ -1,4 +1,5 @@
 import { APIRequestContext, Page, Locator, expect } from '@playwright/test';
+import path from 'path';
 import {
   loginLocators,
   searchLocators,
@@ -13,6 +14,11 @@ export const SHOP_KEYWORD = 'Le Nguyen';
 
 // Domain API backend, dùng cho các test kiểm tra API/contract
 export const API_BASE = 'https://dev-commerce.bidu.vn';
+
+// File lưu phiên đăng nhập đã xác thực (tạo 1 lần ở global-setup.ts), để các test dùng lại
+// thay vì mỗi test tự đăng nhập từ đầu - giảm hẳn rủi ro race/timeout khi login nhiều lần
+// liên tiếp trên cùng 1 tài khoản thật
+export const AUTH_FILE = path.resolve(__dirname, '../.auth/user.json');
 
 // Đăng nhập bằng email/mật khẩu lấy từ biến môi trường BIDU_EMAIL / BIDU_PASSWORD
 export async function login(page: Page) {
@@ -120,9 +126,12 @@ export async function addToCartWithRetry(page: Page, attempts = 3): Promise<void
   const toast = page.locator('.Toastify__toast-body').first();
   let added = false;
   for (let attempt = 0; attempt < attempts && !added; attempt++) {
-    await productDetailLocators.addToCartButton(page).click({ timeout: 15000 });
-    added = await toast
-      .waitFor({ state: 'visible', timeout: 8000 })
+    // Bọc cả bước click trong catch: nếu trang đang chuyển hướng/chưa ổn định khiến nút chưa
+    // tìm thấy trong lần thử này, coi như thử thất bại và để vòng lặp thử lại thay vì văng lỗi luôn
+    added = await productDetailLocators
+      .addToCartButton(page)
+      .click({ timeout: 15000 })
+      .then(() => toast.waitFor({ state: 'visible', timeout: 8000 }))
       .then(() => true)
       .catch(() => false);
   }

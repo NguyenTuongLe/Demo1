@@ -16,6 +16,7 @@ export const searchLocators = {
   keywordInputVisible: (page: Page) => page.locator('input[name="keyword"]:visible'),
   shopTab: (page: Page) => page.locator('.search-result-tabbar__label', { hasText: 'Cửa hàng' }),
   brandRows: (page: Page) => page.locator('.brand-row'),
+  shopsEmptyState: (page: Page) => page.locator('.shops-tab__empty'),
   brandRowName: (row: Locator) => row.locator('.brand-row__name'),
   brandRowMore: (row: Locator) => row.locator('.brand-row__more'),
   productCardsInRow: (row: Locator) => row.locator('.homepage_product_suggestion_product--product-card'),

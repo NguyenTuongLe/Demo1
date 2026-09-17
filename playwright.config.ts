@@ -13,6 +13,8 @@ dotenv.config({ path: path.resolve(__dirname, '.env') });
  */
 export default defineConfig({
   testDir: './tests',
+  /* Đăng nhập 1 lần duy nhất trước khi chạy suite, lưu phiên đăng nhập cho các test dùng lại */
+  globalSetup: './tests/global-setup.ts',
   /* Timeout cho mỗi test (tăng lên vì có bước đăng nhập + headed + slowMo) */
   timeout: 60000,
   /* Tất cả test dùng chung 1 tài khoản thật để đăng nhập trên môi trường dev - chạy song song

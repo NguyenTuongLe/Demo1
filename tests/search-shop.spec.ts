@@ -1,7 +1,11 @@
 import { test, expect } from '@playwright/test';
+import { searchLocators } from './locators';
 
 // Từ khóa của một cửa hàng có sẵn trên hệ thống (dùng để kiểm tra kết quả tìm kiếm)
 const SHOP_KEYWORD = 'AWEEK';
+
+// Từ khóa chắc chắn không khớp cửa hàng nào trong database (dùng để kiểm tra trạng thái rỗng)
+const NOT_FOUND_KEYWORD = 'xyzKhongTonTaiShop999888777';
 
 test('đăng nhập và tìm kiếm cửa hàng theo tên, hiển thị đúng kết quả ở tab "Cửa hàng"', async ({ page }) => {
   await page.goto('/');
@@ -44,4 +48,28 @@ test('đăng nhập và tìm kiếm cửa hàng theo tên, hiển thị đúng k
   // Có thể đi tới trang chi tiết cửa hàng từ kết quả tìm kiếm
   await page.locator('.brand-row__more').first().click();
   await expect(page).toHaveURL(/\/nguoi-ban\//);
+});
+
+test('tìm kiếm cửa hàng không tồn tại trong database hiển thị đúng trạng thái không có kết quả', async ({ page }) => {
+  await page.goto('/');
+
+  // Không cần đăng nhập - tìm kiếm hoạt động cho cả khách chưa đăng nhập
+  await page.locator('input[name="keyword"]').first().click();
+  const searchInput = page.locator('input[name="keyword"]:visible');
+  await searchInput.fill(NOT_FOUND_KEYWORD);
+
+  const shopsResponse = page.waitForResponse(
+    (res) => res.url().includes('/search/shops') && res.url().toLowerCase().includes(NOT_FOUND_KEYWORD.toLowerCase())
+  );
+  await searchInput.press('Enter');
+
+  await expect(page).toHaveURL(/\/tim-kiem\?keyword=/);
+  await shopsResponse;
+
+  await page.locator('.search-result-tabbar__label', { hasText: 'Cửa hàng' }).click();
+
+  // Không có cửa hàng nào khớp -> hiển thị đúng thông báo rỗng, không có dòng kết quả nào
+  await expect(searchLocators.shopsEmptyState(page)).toBeVisible({ timeout: 10000 });
+  await expect(searchLocators.shopsEmptyState(page)).toHaveText('Không tìm thấy cửa hàng');
+  await expect(searchLocators.brandRows(page)).toHaveCount(0);
 });
